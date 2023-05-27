@@ -1,0 +1,258 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <script>
+      var v8tools = sysapps_raw_socket_test.v8tools;
+      var api = xwalk.experimental.raw_socket;
+
+      var current_test = 0;
+      var test_list = [
+        memoryManagement,
+        pingPongTCP,
+        pingPongUDP,
+        serverPortBusyTCP,
+        serverPortBusyUDP,
+        endTest
+      ];
+
+      function runNextTest() {
+        test_list[current_test++]();
+      };
+
+      function reportFail(message) {
+        console.log(message);
+        document.title = "Fail";
+      };
+
+      function endTest() {
+        document.title = "Pass";
+      };
+
+      function memoryManagement() {
+        var eventCount = 0;
+        var garbageCollectionCount = 0;
+
+        // We cannot run the GC inside a callback, because the callee of the
+        // callback holds a reference (that is why runGCandCheck is called from
+        // a setTimeout. Another important thing to notice is nullifying the
+        // server or client object right away won't work because they use
+        // delayed initialization, which is fine, because as soon as the
+        // initialization is completed, the object will be collected if no
+        // variable is keeping a reference to it.
+        function runGCandCheck() {
+          // The GC is called here more than once to make sure
+          // all the dangling objects get collected. Calling the GC
+          // one time does not give a guarantee that everything that
+          // can be collected will be collected.
+          gc();
+          gc();
+          gc();
+
+          // We need to use setTimeout() here because destructor callbacks are
+          // not run synchronously when the object it refers to is being
+          // garbage-collected.
+          setTimeout(function() {
+            if (garbageCollectionCount != 3)
+              reportFail("TCPSocket, TCPServerSocket or UDPSocket is leaking.");
+            else
+              runNextTest();
+          }, 0);
+        };
+
+        var server = new api.TCPServerSocket(
+            {"localAddress": "127.0.0.1", "localPort": 54321});
+        server.onerror = server.onopen = nullifyServer;
+        server.tracker = v8tools.lifecycleTracker();
+        server.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        function nullifyServer() {
+          server.onerror = null;
+          server.onopen = null;
+          server = null;
+
+          if (++eventCount == 3)
+            setTimeout(runGCandCheck, 0);
+        };
+
+        var client = new api.TCPSocket("127.0.0.1", 54321);
+        client.onerror = client.onopen = nullifyClient;
+        client.tracker = v8tools.lifecycleTracker();
+        client.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        function nullifyClient() {
+          client.onerror = null;
+          client.onopen = null;
+          client = null;
+
+          if (++eventCount == 3)
+            setTimeout(runGCandCheck, 0);
+        };
+
+        var udp = new api.UDPSocket({localAddress: "127.0.0.1", localPort: 7000});
+        udp.onerror = udp.onopen = nullifyUDP;
+        udp.tracker = v8tools.lifecycleTracker();
+        udp.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        function nullifyUDP() {
+          udp.onerror = null;
+          udp.onopen = null;
+          udp = null;
+
+          if (++eventCount == 3)
+            setTimeout(runGCandCheck, 0);
+        };
+      };
+
+      // This test is designed like a data ping pong. First we open a server
+      // listening for incoming connections. Secondly we connect a client socket
+      // into this server, that immediately sends a greetings message that is
+      // readily verified. The client then sends back some data to the server,
+      // which also gets checked.
+      //
+      // This is not an API conformance test, it just verifies if the basic
+      // functionality works. W3C should provide the former.
+      function pingPongTCP(serverPort) {
+        serverPort = serverPort || 5000;
+        var serverPortMax = 5020;
+        var testData = "Hello World!";
+
+        var server = new api.TCPServerSocket(
+            {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+        server.onerror = function() {
+          // The default port might be busy, so we try different ports
+          // before reporting failure.
+          if (serverPort < serverPortMax)
+            pingPongTCP(++serverPort);
+          else
+            reportFail("Not able to listen at port " + serverPort + ".");
+        };
+
+        server.onopen = function() {
+          var client = new api.TCPSocket("127.0.0.1", serverPort);
+
+          client.onerror = function() {
+            reportFail("Not able to connect to port " + serverPort + ".");
+          };
+
+          client.ondata = function(event) {
+            var view = new Uint8Array(event.data);
+            var data = String.fromCharCode.apply(null, view);
+
+            if (data != testData)
+              reportFail("Invalid data received by the client socket.");
+            else
+              client.send(testData);
+          };
+        };
+
+        server.onconnect = function(event) {
+          event.connectedSocket.send(testData);
+          event.connectedSocket.ondata = function (event) {
+            var view = new Uint8Array(event.data);
+            var data = String.fromCharCode.apply(null, view);
+
+            if (data != testData)
+              reportFail("Invalid data received by server socket.");
+            else
+              runNextTest();
+          };
+        };
+      };
+
+      function pingPongUDP(serverPort) {
+        serverPort = serverPort || 6000;
+        var serverPortMax = 6020;
+        var testData = "Hello World!";
+
+        var server = new api.UDPSocket(
+            {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+        server.onerror = function() {
+          // The default port might be busy, so we try different ports
+          // before reporting failure.
+          if (serverPort < serverPortMax)
+            pingPongUDP(++serverPort);
+          else
+            reportFail("Not able to listen at port " + serverPort + ".");
+        };
+
+        server.onopen = function() {
+          var client = new api.UDPSocket(
+              {remoteAddress: "127.0.0.1", remotePort: serverPort});
+          client.onopen = function() {
+            client.send(testData);
+          };
+
+          client.onerror = function() {
+            reportFail("Not able to connect to port " + serverPort + ".");
+          };
+
+          client.onmessage = function(event) {
+            var view = new Uint8Array(event.data);
+            var data = String.fromCharCode.apply(null, view);
+
+            if (data != testData)
+              reportFail("Invalid data received by the client socket.");
+            else
+              runNextTest();
+          };
+        };
+
+        server.onmessage = function(event) {
+          var view = new Uint8Array(event.data);
+          var data = String.fromCharCode.apply(null, view);
+
+          if (data != testData)
+            reportFail("Invalid data received by server socket.");
+          else
+            server.send(data, event.remoteAddress, event.remotePort);
+        };
+      };
+
+      function serverPortBusy(Socket, serverPort) {
+        serverPort = serverPort || 7000;
+        var serverPortMax = 7020;
+
+        var server = new Socket(
+            {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+        server.onerror = function() {
+          if (serverPort < serverPortMax)
+            serverPortBusy(Socket, ++serverPort);
+          else
+            reportFail("Not able to listen at port " + serverPort + ".");
+        };
+
+        server.onopen = function() {
+          var serverShouldFail = new Socket(
+              {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+          // Should fail, port already in use by another server.
+          serverShouldFail.onerror = runNextTest();
+          serverShouldFail.onopen = function() {
+            reportFail("Port " + serverPort + " should be busy.");
+          };
+        };
+      };
+
+      function serverPortBusyTCP() {
+        serverPortBusy(api.TCPServerSocket);
+      };
+
+      function serverPortBusyUDP() {
+        serverPortBusy(api.UDPSocket);
+      };
+
+      runNextTest();
+    </script>
+  </body>
+</html>

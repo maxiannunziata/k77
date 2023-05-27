@@ -1,0 +1,168 @@
+<html>
+<head>
+<title></title>
+<script>
+  /*
+   * Test helpers.
+   */
+  function failTest(errormsg) {
+    console.log(new Error(errormsg).stack);
+    document.title = "Fail";
+    // Throw an exception to stop execution and avoid running any other tests.
+    throw new Error("Stopping execution.");
+  }
+
+  function assertEqual(expected, actual) {
+    if (actual !== expected) {
+      failTest("expected '" + expected + "', but got '" + actual + "'");
+    }
+  }
+
+  function assertNotEqual(expected, actual) {
+    if (actual === expected) {
+      failTest("expected '" + expected + "', but got '" + actual + "'");
+    }
+  }
+
+  function gcAndRun(func) {
+    gc();
+
+    // We cannot call |test_function| directly in this test: the destructor
+    // function is not called synchronously when the object it refers to is
+    // garbage-collected, so we need to yield and wait for it to be run as part
+    // of the regular event loop.
+    setTimeout(func, 0);
+  }
+
+  /*
+   * Tests.
+   */
+  function forceSetPropertyTest() {
+    var obj = {};
+    Object.defineProperty(obj, "prop", {
+      configurable: false,
+      writable: false,
+      value: "Fail"
+    });
+
+    try {
+      test_v8tools.forceSetProperty(obj, "prop", "Pass");
+    } catch(e) {
+      failTest("Unable to forceSet() property 'prop'.");
+    }
+    runNextTest();
+  }
+
+  function lifecycleTrackerDefaultDestructorTest() {
+    var collected = 0;
+    function inc_collected() { ++collected; }
+
+    var obj = test_v8tools.lifecycleTracker();
+    assertEqual(null, obj.destructor);
+
+    obj.destructor = inc_collected;
+    obj.destructor = null;
+    gcAndRun(function() {
+      assertEqual(0, collected);
+      runNextTest();
+    });
+  }
+
+  function lifecycleTrackerInvalidDestructorTest() {
+    function func() {}
+
+    var obj = test_v8tools.lifecycleTracker();
+    obj.destructor = func;
+
+    // Setting the destructor to a value that's not a function or null raises
+    // a TypeError.
+    try {
+      obj.destructor = 42;
+    } catch (e) {
+      if (!(e instanceof TypeError)) {
+        failTest("lifecycleTracker returned an unexpected exception.");
+      }
+    } finally {
+      assertEqual(func, obj.destructor);
+    }
+    runNextTest();
+  };
+
+  function lifecycleTrackerDeletedObjectTest() {
+    var obj1 = test_v8tools.lifecycleTracker();
+    var obj2 = test_v8tools.lifecycleTracker();
+    obj1.val = 42;
+    obj1.destructor = function() {
+      // By the time the destructor is run, the object itself must have already
+      // been destroyed.
+      assertEqual(null, obj1);
+      runNextTest();
+    };
+    obj1 = null;
+    gcAndRun(function(){});  // Just allow the destructor to be invoked.
+  }
+
+  function lifecycleTrackerReferencesTest() {
+    var collected = 0;
+    function inc_collected() { ++collected; }
+
+    var obj1 = test_v8tools.lifecycleTracker();
+    obj1.destructor = inc_collected;
+    var obj2 = obj1;
+
+    obj1 = null;
+    gcAndRun(function() {
+      // |obj2| still holds a reference.
+      assertEqual(0, collected);
+      obj2 = null;
+      gcAndRun(function() {
+        assertEqual(1, collected);
+        runNextTest();
+      });
+    });
+  }
+
+  function lifecycleTrackerMultipleObjectsTest() {
+    var collected = 0;
+    function inc_collected() { ++collected; }
+
+    var obj1 = test_v8tools.lifecycleTracker();
+    obj1.destructor = inc_collected;
+    var obj2 = test_v8tools.lifecycleTracker();
+    obj2.destructor = inc_collected;
+
+    obj1 = null;
+    gcAndRun(function() {
+      assertEqual(1, collected);
+      obj2 = null;
+      gcAndRun(function() {
+        assertEqual(2, collected);
+        runNextTest();
+      });
+    });
+  }
+
+  function finishTests() {
+    document.title = "Pass";
+  }
+
+  var tests = [
+    forceSetPropertyTest,
+    lifecycleTrackerDefaultDestructorTest,
+    lifecycleTrackerInvalidDestructorTest,
+    lifecycleTrackerDeletedObjectTest,
+    lifecycleTrackerReferencesTest,
+    lifecycleTrackerMultipleObjectsTest,
+    finishTests
+  ];
+
+  function runNextTest() {
+    if (tests.length == 0)
+      return;
+    setTimeout(tests.shift(), 0);
+  }
+
+  runNextTest();
+</script>
+</head>
+</html>

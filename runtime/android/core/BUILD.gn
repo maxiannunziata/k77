@@ -1,0 +1,429 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+import("//third_party/icu/config.gni")
+import("//v8/gni/v8.gni")
+import("//xwalk/build/android/generate_android_project.gni")
+import("//xwalk/build/android/maven_pom.gni")
+import("//xwalk/build/version.gni")
+import("//xwalk/runtime/android/core_internal/chromium_java_deps.gni")
+# import("//base/android/jni_generator/jni_exception_list.gni")
+import("//xwalk/build/tenta.gni")
+
+declare_args() {
+  # Name of Crosswalk Maven artifacts used to generate their respective POM
+  # files.
+  xwalk_core_library_artifact_id = "xwalk_core_library_canary"
+  xwalk_shared_library_artifact_id = "xwalk_shared_library_canary"
+}
+
+android_library("xwalk_core_java") {
+  deps = [
+    "//base:base_java",
+    ":xwalk_core_java_resources",
+    "//xwalk/runtime/android/core_refactor:xwalk_refactor_java",
+    "//xwalk/third_party/lzma_sdk:lzma_sdk_java",
+#todo(iotto):remove    "//xwalk/extensions/android:xwalk_core_extensions_java",
+#todo(iotto)    "//device/geolocation:geolocation_java",
+    "//services/device/geolocation:geolocation_java",
+    "//components/embedder_support/android:view_java",
+  ]
+  srcjar_deps = [
+    "//xwalk/runtime/android/core_refactor:xwalk_app_version_gen",
+  ]
+
+  if (tenta_chromium_build) {
+    deps += [
+      "//xwalk/third_party/tenta/meta_fs/java:meta_fs_java",
+      "//xwalk/third_party/tenta/chromium_cache:chromium_cache_java",
+      "//xwalk/third_party/tenta/crosswalk_extensions/java:crosswalk_extensions_java",
+      "//xwalk/third_party/tenta/mimicvpn/java:mimicvpn_java",
+    ]
+  } else {
+    deps += [
+      "//xwalk/runtime/android/empty_tenta:tenta_empty_java",
+    ]
+  }
+  java_files = [
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/BindingObject.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/BindingObjectAutoJS.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/BindingObjectStore.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/EventTarget.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/ExtensionInstanceHelper.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/JsApi.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/JsConstructor.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/JsContextInfo.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/JsStubGenerator.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/MessageHandler.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/MessageInfo.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/ReflectionHelper.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/XWalkCoreExtensionBridge.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/XWalkExtensionContextClient.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/XWalkExternalExtension.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/XWalkExternalExtensionBridge.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/XWalkExternalExtensionBridgeFactory.java",
+#todo(iotto):fix or remove    "src/org/xwalk/core/extension/XWalkExternalExtensionManagerImpl.java",
+    "src/org/xwalk/core/JavascriptInterface.java",
+    "src/org/xwalk/core/XWalkActivity.java",
+    "src/org/xwalk/core/XWalkActivityDelegate.java",
+    "src/org/xwalk/core/XWalkApplication.java",
+    "src/org/xwalk/core/XWalkEnvironment.java",
+    "src/org/xwalk/core/XWalkFileChooser.java",
+    "src/org/xwalk/core/XWalkCoreWrapper.java",
+    "src/org/xwalk/core/XWalkDialogManager.java",
+    "src/org/xwalk/core/XWalkInitializer.java",
+    "src/org/xwalk/core/XWalkDecompressor.java",
+    "src/org/xwalk/core/XWalkLibraryInterface.java",
+    "src/org/xwalk/core/XWalkLibraryLoader.java",
+    "src/org/xwalk/core/XWalkMixedResources.java",
+    "src/org/xwalk/core/XWalkUpdater.java",
+  ]
+                                        # New versions of BuildConfig.java and NativeLibraries.java
+#     # (with the actual correct values) will be created when creating an apk.
+  jar_excluded_patterns = [
+#       "*/BuildConfig.class",
+#       "*/NativeLibraries.class",
+#       "*/NativeLibraries##*.class",
+      "*/R.class",
+      "*/R\$*.class",
+      "*/Manifest.class",
+      "*/Manifest\$*.class",
+    ]
+}
+
+android_resources("xwalk_core_java_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core"
+  deps = [
+    ":xwalk_app_strings_grd",
+  ]
+}
+
+raw_resources("xwalk_core_raw_resources") {
+  deps = [
+  ]
+  sources = [
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+  ]
+}
+
+java_strings_grd("xwalk_app_strings_grd") {
+  grd_file = "strings/xwalk_app_strings.grd"
+  outputs = [
+    "values/xwalk_app_strings.xml",
+  ]
+}
+
+android_assets("xwalk_core_assets") {
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+  sources = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/chrome_100_percent.pak",
+  ]  
+  if (icu_use_data_file) {
+    deps += [
+      "//third_party/icu:icudata",
+    ]
+    sources += [
+      "$root_out_dir/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    deps += [ "//v8" ]
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+}
+
+xwalk_dist_aar("xwalk_core_library") {
+  output = "$root_out_dir/xwalk_core_library.aar"
+  android_manifest = "//xwalk/build/android/xwalkcore_library_template/AndroidManifest.xml"
+  version_number = "\"$chrome_version\""
+
+  deps = [
+    ":xwalk_core_java",
+    ":xwalk_core_raw_resources",
+    ":xwalk_core_assets",
+    "//components/embedder_support/android:view",
+    "//xwalk/runtime/app/android:libxwalkcore",
+    "//xwalk/resources:locale_pak_assets",
+  ]
+
+  jar_excluded_patterns = [
+    "com/android/*",
+    "com/google/*",
+    "javax/*",
+    "android/*",
+    "META-INF/*",
+    "play-services-*",
+    "org/chromium/android_webview/*",
+    "org/xwalk/core/R.class", # let the final apk generator create these
+    "org/xwalk/core/R\$*.class",
+    "gen/_third_party/*",
+  ]
+
+  resource_included_patterns = [
+    "*/components/autofill/android/*",
+    "*/ui/android/*",
+    "*/content/public/android/*",
+    "*/media/base/android/*",
+    "*/components/embedder_support/android/*",
+    "*/xwalk/runtime/android/*",
+  ]
+#todo(iotto): Fix to generate  locale_config_java_packages = [ "org.xwalk.core" ]
+}
+
+#generate_android_project("xwalk_core_library") {
+dist_aar("xwalk_core_library2") {
+  output= "$root_out_dir/xwalk_core_library2.aar"
+  android_manifest = "//xwalk/build/android/xwalkcore_library_template/AndroidManifest.xml"
+  deps = [
+    ":xwalk_core_java",
+#     ":xwalk_build_config_gen",
+#     ":xwalk_native_libraries_gen",
+    "//base:base_java",
+    "//third_party/icu:icudata",
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//xwalk/runtime/android/core_refactor:xwalk_refactor_java",
+    "//xwalk/runtime/app/android:libxwalkcore",
+  ]
+  binary_files = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+#  native_libraries = [
+#    "$root_out_dir/libxwalkcore.so"
+#  ]
+  #TODO(iotto): removed
+#  js_bindings = [
+#    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+#    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+#  ]
+
+  # We only need to exclude those classes because invoker.android_manifest
+  # usually points to a manifest with the same package name (org.xwalk.core),
+  # leading to the resources being processed again by Ant when building with
+  # app-tools and dex complaining of multiple definitions of
+  # org.xwalk.core.R.
+  # TODO(rakuco): Check if we should fix the manifest instead.
+  #TODO(iotto): removed
+#  resource_excluded_patterns = [
+#    "*/org/xwalk/core/R.class",
+#    "*/org/xwalk/core/R\$*.class",
+#    "*/org/xwalk/core/Manifest.class",
+#    "*/org/xwalk/core/Manifest\$*.class",
+#    "*/android/support/*/R.class",
+#    "*/android/support/*/R\$*.class",
+#    "*/android/support/*/Manifest.class",
+#    "*/android/support/*/Manifest\$*.class",
+#    "*/com/google/android/*/R.class",
+#    "*/com/google/android/*/R\$*.class",
+#    "*/android/arch/*/R.class",
+#    "*/android/arch/*/R\$*.class",
+#  ]
+
+#   resource_excluded_patterns = [
+#     "*/R.class",
+#     "*/R\$*.class",
+#     "*/Manifest.class",
+#     "*/Manifest\$*.class",
+#   ]
+  #TODO(iotto): removed
+#  shared_libraries = [
+#    "//xwalk/runtime/app/android:libxwalkcore",
+#  ]
+  #TODO(iotto): removed
+  #template_dir = "//xwalk/build/android/xwalkcore_library_template"
+
+  if (icu_use_data_file) {
+    binary_files += [ "$root_out_dir/icudtl.dat" ]
+  }
+
+  if (v8_use_external_startup_data) {
+    asset_sources = [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+    deps += [ "//v8" ]
+  }
+
+#   # New versions of BuildConfig.java and NativeLibraries.java
+#   # (with the actual correct values) will be created when creating an apk.
+#   jar_excluded_patterns = [
+#     "*/BuildConfig.class",
+#     "*/NativeLibraries.class",
+#     "*/NativeLibraries##*.class",
+#   ]
+
+}
+
+java_cpp_template("xwalk_build_config_gen") {
+  sources = [
+    "//base/android/java/templates/BuildConfig.template",
+  ]
+  package_path = "org/chromium/base"
+
+  defines = []
+  if (is_java_debug || dcheck_always_on) {
+    defines += [ "_DCHECK_IS_ON" ]
+  }
+}
+
+#java_cpp_template("xwalk_native_libraries_gen") {
+#  sources = [
+#    "//base/android/java/templates/NativeLibraries.template",
+#  ]
+#  package_path = "org/chromium/base/library_loader"
+write_native_libraries_java("xwalk_native_libraries_gen") {
+  use_final_fields = false
+}
+
+generate_jni_registration("xwalk_jni_registration") {
+  target = ":xwalk_core_library"
+#todo(iotto)  output = "$target_gen_dir/${target_name}.h"
+  header_output = "$target_gen_dir/${target_name}.h"
+#todo(iotto)  exception_files = jni_exception_files
+  print("ohoooooooooo register natives! out=", header_output)
+  print("ohoooooooooo tenta_chromium_build! out=", tenta_chromium_build)
+}
+
+generate_android_project("xwalk_shared_library") {
+  android_manifest =
+      "//xwalk/runtime/android/core_internal_empty/AndroidManifest.xml"
+  deps = [
+    ":xwalk_core_java",
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+  js_bindings = [
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+  ]
+
+  # This target does not depend on //xwalk/runtime/android/core_internal, but
+  # it does need access to some resources that xwalk_core_internal_java ends up
+  # pulling (XWALK-7366).
+  # Even though |core_internal_java_chromium_deps| depends on the *_java
+  # targets instead of the *_java_resources ones, this is fine for our use
+  # case, as we only pass the resource zips to generate_xwalk_core_library.py
+  # anyway.
+  # For the effects of not adding these dependencies, see XWALK-7350 as well as
+  # XWALK-7358.
+  #deps += [ "//xwalk/runtime/android/core_internal:xwalk_core_strings_grd" ]
+  deps += core_internal_java_chromium_deps
+
+  # We only need to exclude those classes because invoker.android_manifest
+  # usually points to a manifest with the same package name (org.xwalk.core),
+  # leading to the resources being processed again by Ant when building with
+  # app-tools and dex complaining of multiple definitions of
+  # org.xwalk.core.R.
+  # TODO(rakuco): Check if we should fix the manifest instead.
+  resource_excluded_patterns = [
+    "*/R.class",
+    "*/R\$*.class",
+    "*/Manifest.class",
+    "*/Manifest\$*.class",
+  ]
+                                                    # (with the actual correct values) will be created when creating an apk.
+#   jar_excluded_patterns = [
+#     "*/BuildConfig.class",
+#     "*/NativeLibraries.class",
+#     "*/NativeLibraries##*.class",
+#   ]
+  template_dir = "//xwalk/build/android/xwalk_shared_library_template"
+}
+
+maven_pom("xwalk_core_library_pom_gen") {
+  artifact_id = xwalk_core_library_artifact_id
+  artifact_version = xwalk_version
+  pom_input = "//xwalk/runtime/android/maven/xwalk_core_library.pom.xml.in"
+  pom_output = "$root_out_dir/xwalk_core_library.pom.xml"
+}
+
+maven_pom("xwalk_shared_library_pom_gen") {
+  artifact_id = xwalk_shared_library_artifact_id
+  artifact_version = xwalk_version
+  pom_input = "//xwalk/runtime/android/maven/xwalk_shared_library.pom.xml.in"
+  pom_output = "$root_out_dir/xwalk_shared_library.pom.xml"
+}
+
+action("xwalk_core_library_documentation") {
+  _java_files = [
+    "//xwalk/runtime/android/core/src/org/xwalk/core/JavascriptInterface.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivity.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkDialogManager.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkFileChooser.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkInitializer.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkUpdater.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExtensionContextClient.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExternalExtension.java",
+  ]
+#   _srcjar = "$root_gen_dir/xwalk_core_reflection_layer/wrapper/wrapper.srcjar"
+  _stamp_file = "$target_gen_dir/$target_name.stamp"
+  _wrapper_java_files = [
+#     "org/xwalk/core/ClientCertRequest.java",
+#     "org/xwalk/core/XWalkCookieManager.java",
+#     "org/xwalk/core/XWalkDownloadListener.java",
+#     "org/xwalk/core/XWalkExternalExtensionManager.java",
+#     "org/xwalk/core/XWalkFindListener.java",
+#     "org/xwalk/core/XWalkGetBitmapCallback.java",
+#     "org/xwalk/core/XWalkHttpAuthHandler.java",
+#     "org/xwalk/core/XWalkJavascriptResult.java",
+#     "org/xwalk/core/XWalkNativeExtensionLoader.java",
+#     "org/xwalk/core/XWalkNavigationHistory.java",
+#     "org/xwalk/core/XWalkNavigationItem.java",
+#     "org/xwalk/core/XWalkPreferences.java",
+#     "org/xwalk/core/XWalkResourceClient.java",
+#     "org/xwalk/core/XWalkSettings.java",
+#     "org/xwalk/core/XWalkUIClient.java",
+#     "org/xwalk/core/XWalkView.java",
+#     "org/xwalk/core/XWalkViewDatabase.java",
+#     "org/xwalk/core/XWalkWebResourceRequest.java",
+#     "org/xwalk/core/XWalkWebResourceResponse.java",
+  ]
+
+  # Derive xwalk_core_java.jar's path via its build_config.
+  _core_java_gen_dir = get_label_info(":xwalk_core_java", "target_gen_dir")
+  _core_java_name = get_label_info(":xwalk_core_java", "name")
+  _core_java_build_config =
+      rebase_path("$_core_java_gen_dir/$_core_java_name.build_config",
+                  root_build_dir)
+
+  _rebased_java_files = rebase_path(_java_files, root_build_dir)
+
+  script = "//xwalk/runtime/android/core/tools/generate_javadoc.py"
+  outputs = [
+    _stamp_file,
+  ]
+  deps = [
+    ":xwalk_core_java",
+    #"//xwalk/runtime/android/core_internal:xwalk_core_reflection_layer_gen",
+  ]
+  sources = _java_files
+#    + [ _srcjar ]
+  args = [
+    "--classpath",
+    rebase_path(android_sdk_jar, root_build_dir),
+    "--classpath",
+    "@FileArg($_core_java_build_config:deps_info:jar_path)",
+#     "--input-srcjar",
+#     rebase_path(_srcjar, root_build_dir),
+    "--java-files",
+    "$_rebased_java_files",
+    "--output-dir",
+    rebase_path("$root_out_dir/xwalk_core_library_docs", root_build_dir),
+    "--srcjar-files",
+    "$_wrapper_java_files",
+    "--stamp",
+    rebase_path(_stamp_file, root_build_dir),
+  ]
+}

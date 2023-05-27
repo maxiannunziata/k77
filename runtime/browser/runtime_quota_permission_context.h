@@ -1,0 +1,31 @@
+// Copyright (c) 2013 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef XWALK_RUNTIME_BROWSER_RUNTIME_QUOTA_PERMISSION_CONTEXT_H_
+#define XWALK_RUNTIME_BROWSER_RUNTIME_QUOTA_PERMISSION_CONTEXT_H_
+
+#include "base/compiler_specific.h"
+#include "content/public/browser/quota_permission_context.h"
+
+namespace xwalk {
+
+class RuntimeQuotaPermissionContext : public content::QuotaPermissionContext {
+ public:
+  RuntimeQuotaPermissionContext();
+
+  // The callback will be dispatched on the IO thread.
+  void RequestQuotaPermission(
+      const content::StorageQuotaParams& params,
+      int render_process_id,
+      const PermissionCallback& callback) override;
+
+ private:
+  ~RuntimeQuotaPermissionContext() override;
+
+  DISALLOW_COPY_AND_ASSIGN(RuntimeQuotaPermissionContext);
+};
+
+}  // namespace xwalk
+
+#endif  // XWALK_RUNTIME_BROWSER_RUNTIME_QUOTA_PERMISSION_CONTEXT_H_

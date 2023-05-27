@@ -1,0 +1,193 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+import("//xwalk/build/version.gni")
+import("//xwalk/build/xwalk.gni")
+import("//xwalk/runtime/android/core_internal/chromium_java_deps.gni")
+import("//xwalk/build/tenta.gni")
+
+android_library("xwalk_refactor_java") {
+  java_files = [
+    "src/com/pakdata/xwalk/refactor/AndroidProtocolHandler.java",
+    "src/com/pakdata/xwalk/refactor/ClientCertLookupTable.java",
+    "src/com/pakdata/xwalk/refactor/ClientCertRequest.java",
+    "src/com/pakdata/xwalk/refactor/ClientCertRequestHandler.java",
+    "src/com/pakdata/xwalk/refactor/CustomViewCallback.java",
+    "src/com/pakdata/xwalk/refactor/CustomViewCallbackHandler.java",
+    "src/com/pakdata/xwalk/refactor/ErrorCodeConversionHelper.java",
+    "src/com/pakdata/xwalk/refactor/InMemorySharedPreferences.java",
+    "src/com/pakdata/xwalk/refactor/MixedContext.java",
+    "src/com/pakdata/xwalk/refactor/PageLoadListener.java",
+    "src/com/pakdata/xwalk/refactor/ReflectField.java",
+    "src/com/pakdata/xwalk/refactor/ReflectMethod.java",
+    "src/com/pakdata/xwalk/refactor/RewriteUrlValue.java",
+    "src/com/pakdata/xwalk/refactor/SslUtil.java",
+    "src/com/pakdata/xwalk/refactor/SwipeRefreshHandler.java",
+    "src/com/pakdata/xwalk/refactor/UrlUtilities.java",
+    "src/com/pakdata/xwalk/refactor/XWalkActionModeCallback.java",
+    "src/com/pakdata/xwalk/refactor/XWalkAutofillClientAndroid.java",
+    "src/com/pakdata/xwalk/refactor/XWalkCleanupReference.java",
+    "src/com/pakdata/xwalk/refactor/XWalkClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContent.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentLifecycleNotifier.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsBackgroundThreadClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsClientBridge.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsClientCallbackHelper.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsIoThreadClient.java",
+#    "src/com/pakdata/xwalk/refactor/XWalkContentVideoViewClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentView.java",
+    "src/com/pakdata/xwalk/refactor/XWalkCookieManager.java",
+    "src/com/pakdata/xwalk/refactor/XWalkCoreBridge.java",
+    "src/com/pakdata/xwalk/refactor/XWalkDevToolsServer.java",
+    "src/com/pakdata/xwalk/refactor/XWalkDownloadListenerImpl.java",
+    "src/com/pakdata/xwalk/refactor/XWalkDownloadListener.java",
+#todo(iotto):remove    "src/com/pakdata/xwalk/refactor/XWalkExtension.java",
+#todo(iotto):remove    "src/com/pakdata/xwalk/refactor/XWalkExternalExtensionManager.java",
+    "src/com/pakdata/xwalk/refactor/XWalkFindListener.java",
+    "src/com/pakdata/xwalk/refactor/XWalkFormDatabase.java",
+    "src/com/pakdata/xwalk/refactor/XWalkGeolocationPermissions.java",
+    "src/com/pakdata/xwalk/refactor/XWalkGetBitmapCallback.java",
+    "src/com/pakdata/xwalk/refactor/XWalkHitTestResult.java",
+    "src/com/pakdata/xwalk/refactor/XWalkHttpAuth.java",
+    "src/com/pakdata/xwalk/refactor/XWalkHttpAuthHandler.java",
+    "src/com/pakdata/xwalk/refactor/XWalkInternalResources.java",
+    "src/com/pakdata/xwalk/refactor/XWalkJavascriptResult.java",
+    "src/com/pakdata/xwalk/refactor/XWalkJavascriptResultHandler.java",
+#    "src/com/pakdata/xwalk/refactor/XWalkLaunchScreenManager.java",
+#    "src/com/pakdata/xwalk/refactor/XWalkMediaPlayerResourceLoadingFilter.java",
+#todo(iotto):fix or remove    "src/com/pakdata/xwalk/refactor/XWalkNativeExtensionLoader.java",
+    "src/com/pakdata/xwalk/refactor/XWalkNavigationHandler.java",
+    "src/com/pakdata/xwalk/refactor/XWalkNavigationHandlerImpl.java",
+    "src/com/pakdata/xwalk/refactor/XWalkNavigationHistory.java",
+    "src/com/pakdata/xwalk/refactor/XWalkNavigationItem.java",
+    "src/com/pakdata/xwalk/refactor/XWalkNotificationService.java",
+    "src/com/pakdata/xwalk/refactor/XWalkNotificationServiceImpl.java",
+    "src/com/pakdata/xwalk/refactor/XWalkPathHelper.java",
+    "src/com/pakdata/xwalk/refactor/XWalkPreferences.java",
+    "src/com/pakdata/xwalk/refactor/XWalkPresentationHost.java",
+    "src/com/pakdata/xwalk/refactor/XWalkResourceClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkSettings.java",
+    "src/com/pakdata/xwalk/refactor/XWalkSwitches.java",
+    "src/com/pakdata/xwalk/refactor/XWalkUIClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkView.java",
+    "src/com/pakdata/xwalk/refactor/XWalkViewDatabase.java",
+    "src/com/pakdata/xwalk/refactor/XWalkViewDelegate.java",
+    "src/com/pakdata/xwalk/refactor/XWalkViewInitializer.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebChromeClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebContentsDelegate.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebContentsDelegateAdapter.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebResourceRequest.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebResourceRequestHandler.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebResourceResponse.java",
+    "src/com/pakdata/xwalk/refactor/extension/api/DisplayManagerJBMR1.java",
+    "src/com/pakdata/xwalk/refactor/extension/api/DisplayManagerNull.java",
+    "src/com/pakdata/xwalk/refactor/extension/api/XWalkDisplayManager.java",
+  ]
+  
+  deps = [
+    ":xwalk_refactor_java_resources",
+    ":xwalk_core_version_gen",
+    ":xwalk_app_version_gen",
+#    "//android_webview:android_webview_java",
+    "//base:base_java",
+    "//components/autofill/android:autofill_java",
+    "//components/navigation_interception/android:navigation_interception_java",
+    "//components/embedder_support/android:web_contents_delegate_java",
+    "//components/embedder_support/android:content_view_java",
+    "//components/embedder_support/android:view_java",
+    "//components/viz/service:service_java",
+    "//content/public/android:content_java",
+    "//media/base/android:media_java",
+    "//net/android:net_java",
+    "//third_party/android_swipe_refresh:android_swipe_refresh_java",
+    "//ui/android:ui_java",
+#todo(iotto):remove    "//xwalk/extensions/android:xwalk_core_extensions_java",
+  ]
+  if (tenta_chromium_build) {
+    deps += [
+      "//xwalk/third_party/tenta/meta_fs/java:meta_fs_java",
+      "//xwalk/third_party/tenta/chromium_cache:chromium_cache_java",
+      "//xwalk/third_party/tenta/crosswalk_extensions/java:crosswalk_extensions_java",
+    ]
+  } else {
+    deps += [
+      "//xwalk/runtime/android/empty_tenta:tenta_empty_java",
+    ]
+  }
+  srcjar_deps = [ 
+#todo(iotto)    "$root_gen_dir/xwalk/runtime/android/core_refactor/xwalk_core_version_gen.srcjar",
+#todo(iotto)    "$root_gen_dir/xwalk/runtime/android/core_refactor/xwalk_app_version_gen.srcjar",
+    ":xwalk_core_version_gen",
+    ":xwalk_app_version_gen",
+  ]
+}
+
+generate_jni("xwalk_refactor_native_jni") {
+#todo(iotto)  jni_package = "xwalk"
+  sources = [
+    "src/com/pakdata/xwalk/refactor/AndroidProtocolHandler.java",
+    "src/com/pakdata/xwalk/refactor/XWalkAutofillClientAndroid.java",
+    "src/com/pakdata/xwalk/refactor/XWalkCookieManager.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContent.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentLifecycleNotifier.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsBackgroundThreadClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsClientBridge.java",
+    "src/com/pakdata/xwalk/refactor/XWalkContentsIoThreadClient.java",
+    "src/com/pakdata/xwalk/refactor/XWalkDevToolsServer.java",
+    "src/com/pakdata/xwalk/refactor/XWalkFormDatabase.java",
+    "src/com/pakdata/xwalk/refactor/XWalkHttpAuthHandler.java",
+    "src/com/pakdata/xwalk/refactor/XWalkPathHelper.java",
+    "src/com/pakdata/xwalk/refactor/XWalkPresentationHost.java",
+    "src/com/pakdata/xwalk/refactor/XWalkSettings.java",
+    "src/com/pakdata/xwalk/refactor/XWalkViewDelegate.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebContentsDelegate.java",
+    "src/com/pakdata/xwalk/refactor/XWalkWebResourceResponse.java",
+  ]
+}
+
+
+java_strings_grd("xwalk_refactor_strings_grd") {
+  grd_file = "strings/android_xwalk_strings.grd"
+  outputs = [
+    "values/android_xwalk_refactor_strings.xml",
+  ]
+}
+
+android_resources("xwalk_refactor_java_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "com.pakdata.xwalk.refactor"
+  deps = [
+    ":xwalk_refactor_strings_grd",
+  ]
+}
+
+java_cpp_template("xwalk_core_version_gen") {
+  sources = [
+    "//xwalk/runtime/android/core_refactor/templates/XWalkCoreVersion.template",
+  ]
+  
+  package_path = "com/pakdata/xwalk/refactor"
+  defines = ["XWALK_API_VERSION=$api_version"]
+}
+
+java_cpp_template("xwalk_app_version_gen") {
+  sources = [
+    "//xwalk/runtime/android/core_refactor/templates/XWalkAppVersion.template",
+  ]
+  
+  package_path = "com/pakdata/xwalk/refactor"
+  defines = ["XWALK_API_VERSION=$api_version",
+             "_XWALK_VERSION=\"$xwalk_version\"",
+  ]
+  if (verify_xwalk_apk) {
+    defines += [ "_VERIFY_XWALK_APK" ]
+  }
+}
+
+generate_jar_jni("xwalk_core_jar_jni") {
+#todo(iotto)  jni_package = "xwalk"
+  classes = [ "java/io/InputStream.class" ]
+}

@@ -1,0 +1,42 @@
+<html>
+<head>
+<title></title>
+<script>
+var notifyFailTest = function(resolve) {
+  setTimeout(function() {
+    xwalk.app.test.notifyFail(function() {
+      resolve();
+    });
+  }, 100);
+};
+
+var notifyPassTest = function(resolve) {
+  setTimeout(function() {
+    xwalk.app.test.notifyPass(function() {
+      resolve();
+    });
+  }, 100);
+};
+
+var notifyTimeoutTest = function(resolve) {
+  setTimeout(function() {
+    xwalk.app.test.notifyTimeout(function() {
+      resolve();
+    });
+  }, 100);
+};
+
+var tests = [
+  notifyFailTest,
+  notifyPassTest,
+  notifyTimeoutTest,
+];
+
+function onLoad() {
+  xwalk.app.test.runTests(tests);
+}
+
+</script>
+</head>
+<body onload = "onLoad()"/>
+</html>

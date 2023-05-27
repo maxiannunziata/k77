@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>Fail</title>
+  </head>
+  <body>
+    <h1>Reference to subframes' extension entry points should not crash!</h1>
+    <p>FS API:<span id="result"></span></p>
+    <iframe id="subFrame"></iframe>
+    <script>
+      var iframe = document.getElementById("subFrame");
+      crossExtension = eval(iframe.contentWindow.xwalk);
+      eval(crossExtension.experimental.native_file_system);
+      var result = document.getElementById("result");
+      if(crossExtension.experimental.native_file_system.requestNativeFileSystem) {
+        result.innerHTML = "Pass";
+        document.title = "Pass";
+      }
+    </script>
+  </body>
+</html>

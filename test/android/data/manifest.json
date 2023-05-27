@@ -1,0 +1,7 @@
+{
+  "name": "loadAppFromManifest Test",
+  "version": "1.0.0",
+  "description": "Test for loadAppFromManifest",
+  "start_url": "index.html"
+}
+

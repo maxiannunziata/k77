@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="grit/xwalk_resources.h" type="rc_header" context="default_100_percent" >
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="grit/xwalk_resources_map.cc" type="resource_map_source" context="default_100_percent" />
+    <output filename="grit/xwalk_resources_map.h" type="resource_map_header" context="default_100_percent" />
+    <output filename="xwalk_resources.pak" type="data_package" context="default_100_percent" />
+    <!-- <output filename="xwalk_resources.rc" type="rc_all" context="default_100_percent" /> -->
+  </outputs>
+  <release seq="1" allow_pseudo="false">
+    <includes>
+      <include file="icons/crosswalk_48x48.png" name="IDR_XWALK_ICON_48" type="BINDATA" />
+      <include file="devtools_discovery_page.html" name="IDR_DEVTOOLS_FRONTEND_PAGE_HTML" type="BINDATA"/>
+      <include name="IDR_XWALK_NATIVE_FILE_SYSTEM_API" file="../../experimental/native_file_system/native_file_system_api.js" type="BINDATA" />
+      <include name="IDR_XWALK_WIFIDIRECT_API" file="../../experimental/wifidirect/wifidirect_api.js" type="BINDATA" />
+    </includes>
+    <structures>
+      <structure type="chrome_scaled_image" name="IDR_CLOSE" file="close.png" />
+      <structure type="chrome_scaled_image" name="IDR_CLOSE_H" file="close_hover.png" />
+      <structure type="chrome_scaled_image" name="IDR_CLOSE_P" file="close_pressed.png" />
+      <structure type="chrome_scaled_image" name="IDR_DOWNLOAD" file="download.png" />
+    </structures>
+    <messages fallback_to_english="true">
+      <!-- Generic terms -->
+      <!--<message name="IDS_SAVE" desc="Used on a button to save information you are editing.">
+        Save
+      </message>
+      -->
+      <message name="IDS_IMAGE_FILES" desc="The description of the image file extensions in the select file dialog.">
+        Image Files
+      </message>
+      <message name="IDS_AUDIO_FILES" desc="The description of the audio file extensions in the select file dialog.">
+        Audio Files
+      </message>
+      <message name="IDS_VIDEO_FILES" desc="The description of the video file extensions in the select file dialog.">
+        Video Files
+      </message>
+      <message name="IDS_CUSTOM_FILES" desc="The description of the custom file extensions in the select file dialog.">
+        Custom Files
+      </message>
+      <!-- Color chooser dialog default titles (only used on Linux) -->
+      <message name="IDS_SELECT_COLOR_DIALOG_TITLE" desc="The default title for the Select Color color chooser dialog.">
+        Select Color
+      </message>
+      <message name="IDS_GEOLOCATION_DIALOG_QUESTION" desc="Question asked on the dialog whenever URL wants to access the user's physical location">
+        <ph name="URL">
+          $1<ex>maps.google.com</ex>
+        </ph> wants to use your computer's location.
+      </message>
+      <message name="IDS_MEDIA_CAPTURE_AUDIO_AND_VIDEO" desc="Question asked on the dialog whenever a web page requests access to the computer's microphone and camera.">
+        <ph name="HOST">
+          $1<ex>html5rocks.com</ex>
+        </ph> wants to use your camera and microphone.
+      </message>
+      <message name="IDS_MEDIA_CAPTURE_AUDIO_ONLY" desc="Question asked on the dialog whenever a web page requests access to the computer's microphone.">
+        <ph name="HOST">
+          $1<ex>html5rocks.com</ex>
+        </ph> wants to use your microphone.
+      </message>
+      <message name="IDS_MEDIA_CAPTURE_VIDEO_ONLY" desc="Question asked on the dialog whenever a web page requests access to the computer's camera.">
+        <ph name="HOST">
+          $1<ex>html5rocks.com</ex>
+        </ph> wants to use your camera.
+      </message>
+      <message name="IDS_NOTIFICATIONS_DIALOG_QUESTION" desc="Question asked on the dialog whenever URL wants to access the notification system.">
+        <ph name="URL">
+          $1<ex>maps.google.com</ex>
+        </ph> wants to show notifications.
+      </message>
+      <message name="IDS_PERMISSION_ALLOW" desc="Label on button to allow a permissions request.">
+        Allow
+      </message>
+      <message name="IDS_PERMISSION_DENY" desc="Label on button to deny a permissions request.">
+        Block
+      </message>
+      <message name="IDS_FULLSCREEN_USER_ENTERED_FULLSCREEN" desc="The message in exclusive access bubble.">
+        You have gone full screen.
+      </message>
+      <message name="IDS_FULLSCREEN_EXIT_MODE" desc="The link text in exclusive access bubble">
+        Exit full screen
+      </message>
+      <message name="IDS_DISPLAY_MODE_FULLSCREEN_EXIT_APPLICATION" desc="The link text in exclusive access bubble">
+        Exit the application
+      </message>
+    </messages>
+  </release>
+</grit>

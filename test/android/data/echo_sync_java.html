@@ -1,0 +1,26 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  var d = new Date().toString();
+  var expected = "From java sync:" + d;
+  var r = echoJava.echoSync(d);
+  document.write(r + "<br>");
+  if (r === expected) {
+    document.write("Sync echo <font color=green>passed</font>.");
+    document.title = "Pass";
+  } else {
+    document.write("Sync echo <font color=red>failed</font>.");
+    document.title = "Fail";
+  }
+  document.close();
+} catch(e) {
+  console.log(e);
+  document.title = "Fail";
+}
+</script>
+</body>
+</html>

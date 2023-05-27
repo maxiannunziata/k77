@@ -1,0 +1,8 @@
+package com.pakdata.xwalk.refactor;
+
+class XWalkCoreVersion {
+    public static final int API_VERSION = XWALK_API_VERSION;
+//    public static final int MIN_API_VERSION = ${MIN_API_VERSION};
+//    public static final String XWALK_BUILD_VERSION = "${XWALK_BUILD_VERSION}";
+}
+

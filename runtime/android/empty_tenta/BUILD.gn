@@ -1,0 +1,70 @@
+import("//xwalk/build/tenta.gni")
+
+if (is_android) {
+  import("//build/config/android/rules.gni")
+
+  android_library("tenta_empty_java") {
+    
+    java_files = [
+      "src/com/tenta/chromium/cache/MetaCacheBackend.java",
+      "src/com/tenta/fs/MetaErrors.java",
+    ]
+    
+    deps = [
+      "//base:base_java",
+    ]
+  }
+} #is_android
+
+component("empty_tenta") {
+  public_configs = [
+    ":tenta_public",
+  ]
+  deps = [
+    ":tenta_exposed",
+  ]
+}
+
+source_set("tenta_exposed") {
+  configs += [ ":tenta_public" ]
+  sources = [
+    "meta_logging.h",
+  ]
+}
+
+config("tenta_public") {
+  defines = []
+  if ( tenta_chromium_build ) {
+    defines += [
+      "TENTA_CHROMIUM_BUILD"
+    ]
+    if ( enable_tenta_log ) {
+      defines += [ "TENTA_LOG_ENABLE=1" ]
+      if ( enable_tenta_log_cache ) {
+        defines += [ "TENTA_LOG_CACHE_ENABLE=1" ]
+      }
+      
+      if ( enable_tenta_log_db ) {
+        defines += [ "TENTA_LOG_DB_ENABLE=1" ]
+      }
+      if ( enable_tenta_log_net ) {
+        defines += [ "TENTA_LOG_NET_ENABLE=1" ]
+      }
+      if ( enable_tenta_log_cookie ) {
+        defines += [ "TENTA_LOG_COOKIE_ENABLE=1" ]
+      }
+      if ( enable_tenta_log_history ) {
+        defines += [ "TENTA_LOG_HISTORY_ENABLE=1" ]
+      }
+      if ( enable_tenta_log_gui ) {
+        defines += [ "TENTA_LOG_GUI_ENABLE=1" ]
+      }
+      if ( enable_tenta_log_ff ) {
+        defines += [ "TENTA_LOG_FF_ENABLE=1" ]
+      }
+    } else {
+      defines += [ "TENTA_LOG_ENABLE=0" ]
+    }
+  }
+  include_dirs = [ "//xwalk/runtime/android/empty_tenta" ]
+}

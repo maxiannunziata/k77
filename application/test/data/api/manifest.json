@@ -1,0 +1,6 @@
+{
+  "name": "xwalk.app API Test",
+  "version": "1.0",
+  "manifest_version": 1,
+  "start_url": "test.html"
+}

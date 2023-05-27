@@ -1,0 +1,45 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_core_internal_shell_apk") {
+  apk_name = "XWalkCoreInternalShell"
+  android_manifest = "AndroidManifest.xml"
+  shared_libraries = [ "//xwalk/runtime/app/android:libxwalkcore" ]
+  deps = [
+    ":xwalk_core_internal_shell_apk_assets",
+    ":xwalk_core_internal_shell_apk_java",
+    ":xwalk_core_internal_shell_apk_resources",
+    "//base:base_java",
+  ]
+}
+
+android_library("xwalk_core_internal_shell_apk_java") {
+  java_files = [
+    "src/org/xwalk/core/internal/xwview/shell/XWalkViewInternalShellActivity.java",
+    "src/org/xwalk/core/internal/xwview/test/TestContentProvider.java",
+    "src/org/xwalk/core/internal/xwview/test/XWalkViewInternalTestRunnerActivity.java",
+  ]
+  deps = [
+    ":xwalk_core_internal_shell_apk_resources",
+    "//base:base_java",
+    "//xwalk/extensions/android:xwalk_core_extensions_java",
+    #"//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+  ]
+}
+
+android_assets("xwalk_core_internal_shell_apk_assets") {
+  visibility = [ ":*" ]
+  renaming_sources = [ "//xwalk/test/android/data/index.html" ]
+  renaming_destinations = [ "www/index.html" ]
+  deps = [
+    "//xwalk/resources:pak_file_assets",
+  ]
+}
+
+android_resources("xwalk_core_internal_shell_apk_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core.internal.xwview.shell"
+}

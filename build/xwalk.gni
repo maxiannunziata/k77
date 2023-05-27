@@ -1,0 +1,14 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file contains Crosswalk specific build flags.
+declare_args() {
+  # Whether to build and use Crosswalk's internal extensions (device
+  # capabilities, sysapps etc).
+  disable_bundled_extensions = false
+
+  # Android: whether the integrity of the Crosswalk runtime library should
+  # be verified when Crosswalk is run in shared mode.
+  verify_xwalk_apk = false
+}

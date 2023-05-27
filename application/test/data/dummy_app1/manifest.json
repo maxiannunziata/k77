@@ -1,0 +1,6 @@
+{
+  "name": "dummy_app_1",
+  "manifest_version": 1,
+  "version": "1.0",
+  "start_url": "main.html"
+}
